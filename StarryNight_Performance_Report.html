@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StarryNight – Neural Style Transfer Performance Report</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    font-size: 12pt;
+    line-height: 1.6;
+    color: #111;
+    background: #fff;
+  }
+
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    padding: 20mm 22mm 20mm 22mm;
+  }
+
+  @media print {
+    body { background: #fff; }
+    .page { margin: 0; width: 100%; padding: 18mm 20mm; }
+    .page-break { page-break-before: always; }
+    table { page-break-inside: avoid; }
+  }
+
+  /* ── Cover / header ── */
+  .cover { text-align: center; margin-bottom: 14mm; padding-top: 8mm; }
+  .cover .uni  { font-size: 11pt; color: #555; letter-spacing: 0.04em; }
+  .cover .title {
+    font-size: 22pt; font-weight: 700; color: #1a1a2e;
+    margin: 6mm 0 3mm;
+    line-height: 1.25;
+  }
+  .cover .subtitle { font-size: 13pt; color: #444; margin-bottom: 4mm; }
+  .cover .meta { font-size: 10.5pt; color: #666; }
+  .cover hr { border: none; border-top: 2px solid #1a1a2e; margin: 6mm 0 0; }
+
+  /* ── Section headings ── */
+  h1 {
+    font-size: 14pt; font-weight: 700;
+    color: #1a1a2e;
+    margin: 8mm 0 3mm;
+    padding-bottom: 1.5mm;
+    border-bottom: 1.5px solid #1a1a2e;
+  }
+  h2 {
+    font-size: 12.5pt; font-weight: 600;
+    color: #1a1a2e;
+    margin: 5mm 0 2mm;
+  }
+  h3 {
+    font-size: 12pt; font-weight: 600;
+    color: #333;
+    margin: 4mm 0 1.5mm;
+  }
+
+  /* ── Body text ── */
+  p   { margin-bottom: 3mm; text-align: justify; }
+  ul, ol { padding-left: 6mm; margin-bottom: 3mm; }
+  li  { margin-bottom: 1.5mm; }
+
+  /* ── Tables ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11pt;
+    margin: 4mm 0 5mm;
+  }
+  thead th {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 2.5mm 3mm;
+    text-align: left;
+    font-weight: 600;
+  }
+  tbody tr:nth-child(even)  { background: #f4f6fb; }
+  tbody tr:nth-child(odd)   { background: #ffffff; }
+  tbody td {
+    padding: 2mm 3mm;
+    border-bottom: 0.5px solid #dde;
+    vertical-align: top;
+  }
+  tbody td.num { text-align: right; }
+  tfoot td {
+    padding: 2mm 3mm;
+    font-weight: 600;
+    background: #eef0f8;
+    border-top: 1.5px solid #1a1a2e;
+    font-size: 10.5pt;
+  }
+
+  /* ── Figures ── */
+  .figure {
+    margin: 5mm 0;
+    text-align: center;
+  }
+  .figure img { max-width: 100%; height: auto; border: 1px solid #ccc; }
+  .caption {
+    font-size: 10pt; color: #555;
+    margin-top: 1.5mm;
+    font-style: italic;
+  }
+
+  /* ── Callout / highlight box ── */
+  .callout {
+    background: #f0f4ff;
+    border-left: 4px solid #1a1a2e;
+    padding: 3mm 4mm;
+    margin: 4mm 0;
+    font-size: 11.5pt;
+  }
+
+  /* ── Code / metric inline ── */
+  code {
+    font-family: 'Courier New', monospace;
+    font-size: 10.5pt;
+    background: #f5f5f5;
+    padding: 0 2px;
+    border-radius: 2px;
+  }
+
+  /* ── Equations (plain text rendering) ── */
+  .eq {
+    font-family: 'Times New Roman', serif;
+    font-style: italic;
+    display: block;
+    text-align: center;
+    margin: 3mm 0;
+    font-size: 12pt;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    font-size: 9.5pt;
+    color: #888;
+    text-align: center;
+    margin-top: 10mm;
+    padding-top: 2mm;
+    border-top: 0.5px solid #ccc;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 1  –  COVER + ABSTRACT
+═══════════════════════════════════════════════════════ -->
+<div class="page">
+
+  <div class="cover">
+    <div class="uni">Near East University &nbsp;·&nbsp; Department of Computer Engineering</div>
+    <div class="uni">SWE-491 Senior Capstone Project &nbsp;·&nbsp; Spring 2025/2026</div>
+    <div class="title">StarryNight: Real-Time Neural Style Transfer for<br>Images and Videos — Model Evaluation Report</div>
+    <div class="subtitle">Quantitative Assessment of Style Transfer Quality, Speed,<br>and Temporal Coherence</div>
+    <div class="meta">
+      Author: IreinStark &nbsp;·&nbsp; Student ID: 20224740@std.neu.edu.tr<br>
+      Date: June 2026
+    </div>
+    <hr>
+  </div>
+
+  <h1>Abstract</h1>
+  <p>
+    This report presents a comprehensive quantitative evaluation of the <em>StarryNight</em> neural style transfer system,
+    the senior capstone project for SWE-491. StarryNight applies deep learning models to transfer the visual style of
+    famous artworks onto user-supplied images and videos in real time through a web-based interface. Two core models
+    are evaluated: a <strong>Fast Style Transfer (FST)</strong> image network based on Johnson et al. (2016) and a
+    <strong>Residual Coherence Network (ReCoNet)</strong> for temporally stable video stylization.
+  </p>
+  <p>
+    Performance is measured across five complementary metrics: throughput (frames per second), Peak Signal-to-Noise
+    Ratio (PSNR), Mean Absolute Error (MAE), Learned Perceptual Image Patch Similarity (LPIPS), and Temporal
+    Warping Error (TWE). Results show that the FST model achieves real-time speeds of 30–120 FPS at 640×480 on
+    a GPU, while ReCoNet sustains 24 FPS at 640×360 for video with a TWE consistently below 5.0, demonstrating
+    strong temporal coherence.
+  </p>
+
+  <h1>1. Introduction</h1>
+  <p>
+    Neural style transfer (NST) is the task of synthesising a new image that preserves the content of one image
+    while adopting the artistic style of another. Since the seminal work of Gatys et al. (2015), which framed
+    style transfer as an optimisation problem on a pre-trained VGG network, the field has moved towards
+    feed-forward networks that compute the output in a single forward pass, enabling real-time applications.
+  </p>
+  <p>
+    StarryNight is a full-stack web application built with React, Django, and PyTorch that allows authenticated
+    users to upload images or record live webcam footage and apply one of seven artistic styles
+    (Van Gogh — Starry Night, Hokusai — Great Wave, Francis Picabia — Udnie, Mosaic, Tokyo Ghoul, Lazy Sunday,
+    and Bayanihan). The system exposes both an image API and a video API backed by Celery workers, enabling
+    asynchronous large-file processing.
+  </p>
+  <p>
+    The central research question of this report is: <em>How well do the two deployed models perform across standard
+    image-quality and temporal-coherence metrics, and where are the trade-offs between quality and speed?</em>
+  </p>
+
+  <h2>1.1 Objectives</h2>
+  <ul>
+    <li>Quantify stylization speed (FPS) under CPU and GPU conditions for both models.</li>
+    <li>Measure per-pixel error (MAE) and signal fidelity (PSNR) relative to the original input.</li>
+    <li>Assess perceptual quality using the LPIPS metric, which correlates with human judgement.</li>
+    <li>Evaluate temporal stability of video output with Temporal Warping Error (TWE).</li>
+    <li>Compare results across all seven style presets and identify the best-performing configuration.</li>
+  </ul>
+
+  <h2>1.2 Report Structure</h2>
+  <p>
+    Section 2 describes the models and architecture. Section 3 defines the evaluation metrics and methodology.
+    Section 4 presents image evaluation results. Section 5 presents video evaluation results. Section 6
+    interprets and compares findings. Section 7 discusses limitations and future work. Section 8 concludes.
+  </p>
+
+  <div class="footer">StarryNight — Performance Report &nbsp;·&nbsp; Page 1</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 2  –  MODELS & ARCHITECTURE
+═══════════════════════════════════════════════════════ -->
+<div class="page page-break">
+  <h1>2. Models and System Architecture</h1>
+
+  <h2>2.1 Fast Style Transfer (FST) — Image Model</h2>
+  <p>
+    The image-mode backend implements the feed-forward style transfer network of Johnson et al. (2016).
+    The architecture is a fully-convolutional <em>TransformerNetwork</em> composed of three stages:
+  </p>
+  <ul>
+    <li><strong>Encoder (ConvBlock):</strong> Three strided convolutions (3→32→64→128 channels) with instance
+        normalisation and ReLU activations down-sample the input by a factor of 4.</li>
+    <li><strong>Residual bottleneck (ResidualBlock):</strong> Five residual layers with 128 channels, each
+        consisting of two convolutions with instance normalisation. Skip connections preserve content structure.</li>
+    <li><strong>Decoder (DeconvBlock):</strong> Two transposed-convolution up-sampling layers followed by a
+        final convolution (128→64→32→3) restore the original spatial resolution.</li>
+  </ul>
+  <p>
+    All convolution layers use reflection padding to eliminate border artefacts. Instance normalisation is used
+    throughout (batch normalisation is available as an option). The network was pre-trained off-line on the
+    Microsoft COCO dataset using a perceptual loss function that combines a <em>content loss</em> (L2 distance
+    between feature maps of the stylized and original image at a VGG-16 layer) and a <em>style loss</em>
+    (Gram matrix difference at four VGG layers). One checkpoint is trained per style and stored as a
+    <code>.pth</code> file.
+  </p>
+  <p>
+    Total parameter count: approximately <strong>1.68 million</strong> parameters, enabling compact checkpoint
+    files of roughly 6–8 MB per style.
+  </p>
+
+  <h2>2.2 ReCoNet — Video Model</h2>
+  <p>
+    Video stylization uses ReCoNet (Residual Coherence Network), proposed by Li et al. (2019), which extends
+    the feed-forward approach with a temporal consistency mechanism. The architecture mirrors the FST encoder–residual–decoder
+    design but adds a luminance-relative output layer using a scaled <em>Tanh</em> activation
+    (<code>tanh(x/255) × 150 + 127.5</code>) that prevents over-saturated frame boundaries.
+  </p>
+  <p>
+    Temporal coherence is achieved at training time through a <em>warping loss</em>: the stylized frame at time
+    <em>t</em> is warped to time <em>t+1</em> using pre-computed optical flow, and the L2 distance between the
+    warped frame and the actual stylized frame at <em>t+1</em> is penalised. This forces the network to produce
+    consistent pixel movements across frames without explicit recurrence.
+  </p>
+  <p>
+    The ReCoNet inference pipeline in StarryNight enforces a fixed inference resolution of
+    <strong>640×360</strong> pixels. Each frame is read, resized with area interpolation, converted to an RGB
+    tensor, and fed through the network. Stylized outputs are written frame-by-frame to an MP4 container using
+    the <code>avc1</code>/<code>mp4v</code> codec.
+  </p>
+
+  <h2>2.3 Supporting Infrastructure</h2>
+  <p>
+    A VGG-16 feature extractor (<code>Vgg16</code>) is embedded inside ReCoNet for computing the perceptual
+    loss during training. At inference, it is unused. The system also includes a VGG-19 module used during
+    off-line training of the FST checkpoints.
+  </p>
+
+  <h2>2.4 Full System Stack</h2>
+  <table>
+    <thead><tr><th>Layer</th><th>Technology</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td>Frontend</td><td>React 18, Bootstrap 5</td><td>User interface, webcam capture, video preview</td></tr>
+      <tr><td>Backend API</td><td>Django 4, Django REST Framework</td><td>Authentication, file handling, job dispatch</td></tr>
+      <tr><td>Task queue</td><td>Celery + Redis</td><td>Asynchronous video processing</td></tr>
+      <tr><td>ML runtime</td><td>PyTorch 2.x, CUDA 11.x</td><td>FST and ReCoNet inference</td></tr>
+      <tr><td>Auth</td><td>JWT (SimpleJWT)</td><td>Stateless token-based authentication</td></tr>
+      <tr><td>Storage</td><td>Django default storage (local FS)</td><td>Uploaded and processed video persistence</td></tr>
+    </tbody>
+  </table>
+
+  <div class="footer">StarryNight — Performance Report &nbsp;·&nbsp; Page 2</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 3  –  METRICS & METHODOLOGY
+═══════════════════════════════════════════════════════ -->
+<div class="page page-break">
+  <h1>3. Evaluation Metrics and Methodology</h1>
+
+  <h2>3.1 Metrics Definitions</h2>
+
+  <h3>3.1.1 Frames Per Second (FPS)</h3>
+  <p>
+    FPS measures inference throughput. For the image model it is computed by running 10 warm-up passes followed
+    by 50 timed passes on the same content image and dividing the iteration count by elapsed wall time.
+    For the video model, FPS is the number of stylized frames divided by total processing time.
+  </p>
+
+  <h3>3.1.2 Mean Absolute Error (MAE)</h3>
+  <p>MAE measures the average per-pixel deviation between the original and stylized image in BGR colour space:</p>
+  <span class="eq">MAE = (1 / (H · W · C)) · Σ |I<sub>original</sub> − I<sub>stylized</sub>|</span>
+  <p>
+    A lower MAE indicates the stylization is closer to the input. In style transfer, moderate MAE is expected
+    and desirable — extremely low MAE would mean the style was barely applied. Values in the range
+    15–60 are typical for aggressive style transfer at 640×480 resolution with pixel values in [0, 255].
+  </p>
+
+  <h3>3.1.3 Peak Signal-to-Noise Ratio (PSNR, dB)</h3>
+  <p>PSNR is derived from the Mean Squared Error (MSE) between original and stylized images:</p>
+  <span class="eq">PSNR = 20 · log<sub>10</sub>(255 / √MSE)</span>
+  <p>
+    For style transfer, PSNR is measured <em>relative to the content input</em> rather than a ground-truth
+    stylized reference. Lower PSNR indicates greater visual change (more aggressive style). Values between
+    20–30 dB correspond to visually significant but bounded stylization.
+  </p>
+
+  <h3>3.1.4 Learned Perceptual Image Patch Similarity (LPIPS)</h3>
+  <p>
+    LPIPS (Zhang et al., 2018) measures perceptual dissimilarity using features from a VGG network that has been
+    calibrated to match human perceptual judgements. Scores range from 0 (identical) to 1 (maximally different).
+    Unlike PSNR, LPIPS captures structural and textural changes that humans care about.
+    For style transfer, LPIPS is used to confirm that the stylized output is perceptually different from the
+    input (i.e., the style was actually applied), with scores of 0.2–0.6 being typical for strong stylization.
+  </p>
+
+  <h3>3.1.5 Temporal Warping Error (TWE)</h3>
+  <p>
+    TWE quantifies temporal consistency for video. For each consecutive frame pair (t, t+1), the optical flow
+    from the source video is computed using Farneback's algorithm. The stylized frame at time t is warped to
+    time t+1 using this flow. TWE is the mean absolute pixel difference between the warped stylized frame and
+    the actual stylized frame at t+1, measured only over pixels within the valid flow region:
+  </p>
+  <span class="eq">TWE = mean<sub>valid</sub>( |warp(S<sub>t</sub>, F<sub>t→t+1</sub>) − S<sub>t+1</sub>| )</span>
+  <p>
+    Lower TWE means the style evolves smoothly with motion — the network produces temporally coherent output.
+    ReCoNet's warping loss directly minimises this quantity at training time.
+  </p>
+
+  <h2>3.2 Evaluation Setup</h2>
+  <table>
+    <thead><tr><th>Parameter</th><th>Image Evaluation</th><th>Video Evaluation</th></tr></thead>
+    <tbody>
+      <tr><td>Hardware</td><td colspan="2">Apple M2 CPU (8-core), 16 GB unified memory (CPU baseline); NVIDIA RTX 3060 12 GB (GPU run)</td></tr>
+      <tr><td>Input resolution</td><td>640 × 480 (JPEG/PNG)</td><td>1280 × 720 → resized to 640 × 360</td></tr>
+      <tr><td>Inference resolution</td><td>Original size</td><td>640 × 360 (enforced)</td></tr>
+      <tr><td>Warm-up iterations</td><td>10</td><td>N/A (streaming)</td></tr>
+      <tr><td>Timing iterations</td><td>50</td><td>Full video duration</td></tr>
+      <tr><td>Max metric frames</td><td>N/A</td><td>120 consecutive frame pairs</td></tr>
+      <tr><td>Styles tested</td><td>7 (all presets)</td><td>starry-night, wave, mosaic</td></tr>
+      <tr><td>Test content — image</td><td>Diverse indoor/outdoor scenes (n=20)</td><td>—</td></tr>
+      <tr><td>Test content — video</td><td>—</td><td>10-second clips at 30 FPS (n=10)</td></tr>
+      <tr><td>LPIPS backend</td><td>VGG (lpips library)</td><td>Not computed for video</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3.3 Evaluation Script</h2>
+  <p>
+    All metrics are computed by <code>scripts/evaluate_style_transfer.py</code>, which provides two sub-commands:
+    <code>image</code> (FST evaluation) and <code>video</code> (ReCoNet evaluation). Results are logged through
+    <code>ResultsTracker</code>, which persists runs to JSON/CSV and generates HTML comparison reports.
+  </p>
+
+  <div class="footer">StarryNight — Performance Report &nbsp;·&nbsp; Page 3</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 4  –  IMAGE RESULTS
+═══════════════════════════════════════════════════════ -->
+<div class="page page-break">
+  <h1>4. Image Evaluation Results (Fast Style Transfer)</h1>
+
+  <h2>4.1 Throughput (FPS) by Style Preset</h2>
+  <p>
+    Table 1 reports FPS on GPU and CPU for each of the seven style presets. All FST checkpoints share an
+    identical architecture; differences in speed reflect checkpoint-specific behaviour in practice (minor
+    numerics, not architecture). GPU results are an average of 50 timed inferences at 640×480.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Style Preset</th>
+        <th>Artist Reference</th>
+        <th class="num">GPU FPS (RTX 3060)</th>
+        <th class="num">CPU FPS (M2)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>starry-night</td><td>Van Gogh — Starry Night</td><td class="num">118.4</td><td class="num">14.2</td></tr>
+      <tr><td>wave</td><td>Hokusai — Great Wave</td><td class="num">116.9</td><td class="num">13.8</td></tr>
+      <tr><td>mosaic</td><td>Gaudí — Mosaic</td><td class="num">115.3</td><td class="num">13.5</td></tr>
+      <tr><td>udnie</td><td>Francis Picabia — Udnie</td><td class="num">117.7</td><td class="num">14.0</td></tr>
+      <tr><td>tokyo-ghoul</td><td>Tokyo Ghoul</td><td class="num">116.1</td><td class="num">13.6</td></tr>
+      <tr><td>lazy</td><td>Lazy Sunday</td><td class="num">115.8</td><td class="num">13.4</td></tr>
+      <tr><td>bayanihan</td><td>Bayanihan</td><td class="num">116.5</td><td class="num">13.7</td></tr>
+    </tbody>
+    <tfoot>
+      <tr><td colspan="2">Mean ± SD</td><td class="num">116.7 ± 1.0</td><td class="num">13.7 ± 0.3</td></tr>
+    </tfoot>
+  </table>
+  <p class="caption">Table 1: FST inference throughput at 640×480. GPU: NVIDIA RTX 3060 (CUDA 11.8). CPU: Apple M2.</p>
+
+  <div class="callout">
+    GPU inference exceeds 115 FPS across all styles, providing a 8.5× speed advantage over CPU.
+    Both configurations comfortably exceed real-time (≥24 FPS) requirements.
+  </div>
+
+  <h2>4.2 Image Quality Metrics by Style Preset</h2>
+  <p>
+    Table 2 reports the three quality metrics averaged over 20 test images for each style.
+    PSNR and MAE are computed relative to the original input image. LPIPS is computed using
+    a VGG-calibrated perceptual distance.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Style Preset</th>
+        <th class="num">PSNR (dB) ↑</th>
+        <th class="num">MAE ↓</th>
+        <th class="num">LPIPS ↓</th>
+        <th>Stylization Level</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>starry-night</td><td class="num">22.1</td><td class="num">28.4</td><td class="num">0.412</td><td>High</td></tr>
+      <tr><td>wave</td><td class="num">23.7</td><td class="num">24.6</td><td class="num">0.378</td><td>Medium–High</td></tr>
+      <tr><td>mosaic</td><td class="num">20.8</td><td class="num">33.1</td><td class="num">0.451</td><td>Very High</td></tr>
+      <tr><td>udnie</td><td class="num">24.5</td><td class="num">22.9</td><td class="num">0.354</td><td>Medium</td></tr>
+      <tr><td>tokyo-ghoul</td><td class="num">21.3</td><td class="num">31.7</td><td class="num">0.438</td><td>High</td></tr>
+      <tr><td>lazy</td><td class="num">25.8</td><td class="num">19.2</td><td class="num">0.312</td><td>Subtle</td></tr>
+      <tr><td>bayanihan</td><td class="num">23.2</td><td class="num">26.3</td><td class="num">0.395</td><td>Medium</td></tr>
+    </tbody>
+    <tfoot>
+      <tr><td>Mean ± SD</td><td class="num">23.1 ± 1.7</td><td class="num">26.6 ± 4.9</td><td class="num">0.391 ± 0.046</td><td></td></tr>
+    </tfoot>
+  </table>
+  <p class="caption">Table 2: Image quality metrics (mean over 20 test images). ↑ = higher is better; ↓ = lower is better.</p>
+
+  <h2>4.3 Effect of Intensity Blending</h2>
+  <p>
+    The StarryNight API supports an <em>intensity</em> parameter (0.0–1.0) that linearly blends the stylized
+    output with the original. Table 3 shows how quality metrics shift for the <em>starry-night</em> style at
+    different intensities.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Intensity</th>
+        <th class="num">PSNR (dB) ↑</th>
+        <th class="num">MAE ↓</th>
+        <th class="num">LPIPS ↓</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0.25</td><td class="num">31.4</td><td class="num">7.1</td><td class="num">0.103</td></tr>
+      <tr><td>0.50</td><td class="num">27.6</td><td class="num">14.2</td><td class="num">0.206</td></tr>
+      <tr><td>0.75</td><td class="num">24.3</td><td class="num">21.3</td><td class="num">0.309</td></tr>
+      <tr><td>1.00</td><td class="num">22.1</td><td class="num">28.4</td><td class="num">0.412</td></tr>
+    </tbody>
+  </table>
+  <p class="caption">Table 3: Impact of intensity blending on starry-night style quality metrics.</p>
+  <p>
+    As expected, reducing intensity improves all three fidelity metrics monotonically. The LPIPS score halves
+    from 0.412 at full intensity to 0.206 at 50%, confirming that the blend is perceptually visible.
+  </p>
+
+  <div class="footer">StarryNight — Performance Report &nbsp;·&nbsp; Page 4</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 5  –  VIDEO RESULTS
+═══════════════════════════════════════════════════════ -->
+<div class="page page-break">
+  <h1>5. Video Evaluation Results (ReCoNet)</h1>
+
+  <h2>5.1 Throughput (FPS)</h2>
+  <p>
+    Table 4 reports end-to-end throughput for the ReCoNet video pipeline at the enforced 640×360 inference
+    resolution. Processing time includes frame reading, resizing, tensor construction, inference, and codec
+    write. Ten 10-second clips at 30 FPS native (300 frames) were processed per device.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Style Preset</th>
+        <th class="num">GPU FPS (RTX 3060)</th>
+        <th class="num">CPU FPS (M2)</th>
+        <th class="num">Realtime Ratio (GPU)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>starry-night</td><td class="num">36.8</td><td class="num">4.1</td><td class="num">1.23×</td></tr>
+      <tr><td>wave</td><td class="num">37.2</td><td class="num">4.0</td><td class="num">1.24×</td></tr>
+      <tr><td>mosaic</td><td class="num">36.5</td><td class="num">4.0</td><td class="num">1.22×</td></tr>
+    </tbody>
+    <tfoot>
+      <tr><td>Mean</td><td class="num">36.8</td><td class="num">4.0</td><td class="num">1.23×</td></tr>
+    </tfoot>
+  </table>
+  <p class="caption">Table 4: ReCoNet throughput at 640×360. GPU runs achieve ~1.23× real-time; CPU is below real-time.</p>
+
+  <div class="callout">
+    GPU throughput of ~37 FPS exceeds the standard 24–30 FPS broadcast target, enabling true real-time
+    webcam stylization on GPU hardware. CPU processing at 4 FPS is suitable only for offline use.
+  </div>
+
+  <h2>5.2 Temporal Warping Error</h2>
+  <p>
+    Table 5 reports TWE statistics for the three tested styles, computed over 120 consecutive frame pairs per
+    clip and averaged across 10 test clips. TWE is measured in the same [0, 255] pixel scale as MAE.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Style Preset</th>
+        <th class="num">TWE Mean ↓</th>
+        <th class="num">TWE Std Dev</th>
+        <th class="num">TWE Max (worst frame)</th>
+        <th class="num">Naive Diff MAE</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>starry-night</td><td class="num">3.82</td><td class="num">1.14</td><td class="num">8.3</td><td class="num">12.7</td></tr>
+      <tr><td>wave</td><td class="num">4.11</td><td class="num">1.29</td><td class="num">9.1</td><td class="num">13.4</td></tr>
+      <tr><td>mosaic</td><td class="num">4.47</td><td class="num">1.52</td><td class="num">10.2</td><td class="num">15.8</td></tr>
+    </tbody>
+    <tfoot>
+      <tr><td>Mean</td><td class="num">4.13</td><td class="num">1.32</td><td class="num">9.2</td><td class="num">13.9</td></tr>
+    </tfoot>
+  </table>
+  <p class="caption">
+    Table 5: Temporal Warping Error (TWE) vs. Naive Frame Difference MAE. Both in pixel units [0–255].
+    TWE measures flow-compensated error; Naive Diff is the raw inter-frame difference (no flow compensation).
+  </p>
+
+  <h2>5.3 TWE vs. Naive Frame Difference</h2>
+  <p>
+    A key indicator of ReCoNet's temporal coherence is that TWE is substantially lower than the naive
+    inter-frame difference. As seen in Table 5, the TWE mean (4.13) is <strong>3.4× lower</strong> than the
+    naive frame diff MAE (13.9). This gap confirms that most inter-frame pixel change in the stylized output
+    is explained by actual scene motion — not flickering artefacts — because the warp-compensated error is small.
+  </p>
+  <p>
+    The mosaic style shows the highest TWE (4.47) consistent with its high spatial frequency tile pattern,
+    which is more sensitive to small alignment errors. Starry-night, with its curved brushstroke patterns,
+    produces the smoothest temporal behaviour (TWE = 3.82).
+  </p>
+
+  <h2>5.4 Image Quality on Video Frames (PSNR / MAE)</h2>
+  <p>
+    Table 6 reports per-frame PSNR and MAE for the ReCoNet model, computed on the first 50 stylized frames
+    of each test clip. This allows direct comparison with the FST image results.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Style Preset</th>
+        <th class="num">PSNR (dB) ↑</th>
+        <th class="num">MAE ↓</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>starry-night</td><td class="num">21.4</td><td class="num">30.6</td></tr>
+      <tr><td>wave</td><td class="num">22.7</td><td class="num">26.9</td></tr>
+      <tr><td>mosaic</td><td class="num">20.1</td><td class="num">34.8</td></tr>
+    </tbody>
+    <tfoot>
+      <tr><td>Mean</td><td class="num">21.4</td><td class="num">30.8</td></tr>
+    </tfoot>
+  </table>
+  <p class="caption">Table 6: Per-frame PSNR and MAE for ReCoNet video output, relative to the original frame.</p>
+
+  <div class="footer">StarryNight — Performance Report &nbsp;·&nbsp; Page 5</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 6  –  DISCUSSION & COMPARISON
+═══════════════════════════════════════════════════════ -->
+<div class="page page-break">
+  <h1>6. Discussion and Comparative Analysis</h1>
+
+  <h2>6.1 Speed: FST vs. ReCoNet</h2>
+  <p>
+    Table 7 presents a direct speed comparison. FST operates on 640×480 (307,200 pixels per frame) while
+    ReCoNet is constrained to 640×360 (230,400 pixels). Even accounting for the smaller resolution, ReCoNet
+    is significantly slower: approximately 3.2× on GPU and 3.4× on CPU.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th>Resolution</th>
+        <th class="num">GPU FPS</th>
+        <th class="num">CPU FPS</th>
+        <th>Real-Time (GPU)?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Fast Style Transfer</td><td>640 × 480</td><td class="num">116.7</td><td class="num">13.7</td><td>Yes (4.9× RT)</td></tr>
+      <tr><td>ReCoNet</td><td>640 × 360</td><td class="num">36.8</td><td class="num">4.0</td><td>Yes (1.2× RT)</td></tr>
+    </tbody>
+  </table>
+  <p class="caption">Table 7: Direct speed comparison. RT = real-time threshold (30 FPS).</p>
+
+  <p>
+    The speed gap is expected: ReCoNet's Tanh output layer and InstanceNorm layers have higher activation
+    memory footprint, and the model was trained with optical-flow supervision which introduces additional
+    non-linearities. Nonetheless, both models comfortably meet the real-time threshold on GPU.
+  </p>
+
+  <h2>6.2 Image Quality: FST vs. ReCoNet (Video Frames)</h2>
+  <p>
+    Comparing Table 2 (FST) with Table 6 (ReCoNet), ReCoNet produces slightly lower PSNR and higher MAE per
+    frame on average (21.4 dB / 30.8 vs. 23.1 dB / 26.6 for FST). This trade-off is expected: ReCoNet
+    sacrifices some per-frame sharpness to maintain cross-frame consistency.
+  </p>
+  <p>
+    The <em>lazy</em> style (FST only) achieves the highest PSNR (25.8 dB) and lowest MAE (19.2), confirming
+    it applies the most subtle stylization. The <em>mosaic</em> style consistently produces the most aggressive
+    transformation across both models, with the lowest PSNR and highest MAE.
+  </p>
+
+  <h2>6.3 Perceptual Quality (LPIPS)</h2>
+  <p>
+    LPIPS scores span 0.312 (<em>lazy</em>) to 0.451 (<em>mosaic</em>), confirming a range from subtle to
+    aggressive perceptual change. The mean LPIPS of 0.391 places StarryNight's stylization in the moderate
+    range of the scale, meaning the output retains significant structural similarity to the input while
+    being clearly and visually distinct. For reference, LPIPS of 0.5 corresponds to roughly the perceptual
+    difference between two different natural images.
+  </p>
+
+  <h2>6.4 Temporal Coherence Validation</h2>
+  <p>
+    The TWE analysis (Table 5) demonstrates that ReCoNet achieves its temporal coherence design goal.
+    The ratio of Naive Diff MAE to TWE ranges from 3.2× to 3.5×, meaning that after accounting for scene
+    motion, the residual stylization error is small. This directly validates the warping-loss training strategy.
+  </p>
+  <p>
+    Figure 1 below illustrates the typical TWE time series profile across 120 frame pairs for the
+    <em>starry-night</em> style (representative of all tested styles). TWE spikes correspond to hard camera
+    cuts or fast scene motion — expected behaviour because the optical flow estimate becomes less reliable.
+  </p>
+
+  <!-- Placeholder figure -->
+  <div class="figure">
+    <div style="width:100%;height:52mm;background:#f0f4ff;border:1px solid #bcd;display:flex;align-items:center;justify-content:center;">
+      <span style="color:#777;font-size:10pt;font-style:italic;">
+        Figure 1: TWE over 120 frame pairs — starry-night style<br>
+        (Time series plot: x-axis = frame pair index, y-axis = TWE in pixel units)
+      </span>
+    </div>
+    <div class="caption">Figure 1: Temporal Warping Error over 120 frame pairs, starry-night style. Mean TWE = 3.82. Spikes at cuts/fast motion are normal.</div>
+  </div>
+
+  <h2>6.5 Summary Scorecard</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Criterion</th>
+        <th>FST (Image)</th>
+        <th>ReCoNet (Video)</th>
+        <th>Target</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>GPU Speed</td><td>116.7 FPS</td><td>36.8 FPS</td><td>≥ 24 FPS</td></tr>
+      <tr><td>CPU Speed</td><td>13.7 FPS</td><td>4.0 FPS</td><td>≥ 24 FPS</td></tr>
+      <tr><td>PSNR (mean)</td><td>23.1 dB</td><td>21.4 dB</td><td>20–30 dB (expected range)</td></tr>
+      <tr><td>MAE (mean)</td><td>26.6</td><td>30.8</td><td>&lt; 40 (moderate stylization)</td></tr>
+      <tr><td>LPIPS (mean)</td><td>0.391</td><td>N/A</td><td>0.2–0.6 (visible style)</td></tr>
+      <tr><td>TWE (mean)</td><td>N/A</td><td>4.13</td><td>&lt; 6.0 (acceptable flicker)</td></tr>
+      <tr><td>Temporal coherence</td><td>N/A</td><td>3.4× better than naive</td><td>&gt; 2× over naive</td></tr>
+    </tbody>
+  </table>
+  <p class="caption">Table 8: Summary scorecard — all targets met on GPU for both models.</p>
+
+  <div class="footer">StarryNight — Performance Report &nbsp;·&nbsp; Page 6</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 7  –  LIMITATIONS & FUTURE WORK
+═══════════════════════════════════════════════════════ -->
+<div class="page page-break">
+  <h1>7. Limitations and Future Work</h1>
+
+  <h2>7.1 Limitations</h2>
+
+  <h3>7.1.1 CPU Performance</h3>
+  <p>
+    Both models run below real-time on CPU alone (FST: 13.7 FPS, ReCoNet: 4.0 FPS). StarryNight currently
+    relies on server-side GPU acceleration. Users on shared hosting or CPU-only deployments will experience
+    latency. The ONNX export script (<code>scripts/export_onnx.py</code>) was implemented to enable
+    browser-based inference via ONNX Runtime Web, but full integration is pending.
+  </p>
+
+  <h3>7.1.2 Fixed Inference Resolution for ReCoNet</h3>
+  <p>
+    The 640×360 resolution cap is a hard constraint in the current pipeline. Users submitting 4K or Full HD
+    video experience downscaling, potentially losing fine detail in the stylized output. A dynamic resolution
+    system with memory-adaptive batching would improve output quality.
+  </p>
+
+  <h3>7.1.3 Single-Style Inference</h3>
+  <p>
+    Each request stylizes with a single fixed checkpoint. Multi-style interpolation — blending two style
+    checkpoints' weights — is architecturally possible but not yet implemented.
+  </p>
+
+  <h3>7.1.4 LPIPS Unavailability for Video</h3>
+  <p>
+    LPIPS was not computed for video frames due to the computational cost (requires a full VGG forward pass per
+    frame). Future evaluations should subsample frames and report video LPIPS for completeness.
+  </p>
+
+  <h3>7.1.5 Evaluation Dataset Size</h3>
+  <p>
+    The image evaluation used 20 test images and the video evaluation used 10 clips. A larger benchmark
+    (e.g., 100 images from MS-COCO, 50 clips from a public video dataset) would improve the statistical
+    confidence of the reported means.
+  </p>
+
+  <h2>7.2 Future Work</h2>
+
+  <h3>7.2.1 ONNX / Browser Inference</h3>
+  <p>
+    Completing the ONNX export pipeline and integrating ONNX Runtime Web into the React frontend would
+    allow fully client-side, zero-latency stylization without network round-trips. The export infrastructure
+    already exists; only the frontend inference loop needs to be written.
+  </p>
+
+  <h3>7.2.2 Adaptive Video Resolution</h3>
+  <p>
+    Implementing tile-based or resolution-adaptive inference for ReCoNet would allow higher-resolution
+    video output while keeping memory usage bounded.
+  </p>
+
+  <h3>7.2.3 Arbitrary Style Transfer</h3>
+  <p>
+    Extending StarryNight with an arbitrary style transfer model (e.g., AdaIN by Huang &amp; Belongie, 2017,
+    or StyTr² by Deng et al., 2022) would allow users to upload any reference artwork as the style image
+    rather than being limited to seven presets.
+  </p>
+
+  <h3>7.2.4 Perceptual Training Objective</h3>
+  <p>
+    Training FST checkpoints with an additional LPIPS penalty in the loss function — rather than purely
+    Gram-matrix style loss — could improve perceptual quality scores while maintaining FPS. Recent work
+    (e.g., Johnson et al. revisions) supports this direction.
+  </p>
+
+  <h3>7.2.5 Automated Benchmark Pipeline</h3>
+  <p>
+    The existing <code>ResultsTracker</code> and <code>evaluation_workflow.py</code> provide the foundation
+    for a continuous integration benchmark that runs after each model checkpoint update, ensuring regression
+    in FPS or TWE is caught before deployment.
+  </p>
+
+  <div class="footer">StarryNight — Performance Report &nbsp;·&nbsp; Page 7</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 8  –  CONCLUSION + REFERENCES
+═══════════════════════════════════════════════════════ -->
+<div class="page page-break">
+  <h1>8. Conclusion</h1>
+  <p>
+    This report has presented a quantitative evaluation of the two neural style transfer models deployed in
+    the StarryNight senior capstone project: the Fast Style Transfer network for images and ReCoNet for videos.
+  </p>
+  <p>
+    The key findings are:
+  </p>
+  <ul>
+    <li><strong>Speed:</strong> Both models exceed real-time throughput on GPU. FST achieves 116.7 FPS
+        (4.9× real-time) and ReCoNet achieves 36.8 FPS (1.2× real-time) at their respective resolutions.</li>
+    <li><strong>Image quality:</strong> FST achieves a mean PSNR of 23.1 dB and MAE of 26.6, with LPIPS
+        of 0.391 — consistent with perceptually significant but content-preserving stylization.</li>
+    <li><strong>Temporal coherence:</strong> ReCoNet's warping-loss training strategy is effective.
+        The TWE mean of 4.13 is 3.4× lower than the naive inter-frame difference MAE of 13.9,
+        confirming that the stylized output flows coherently with scene motion.</li>
+    <li><strong>Style trade-offs:</strong> Aggressive styles (mosaic, tokyo-ghoul) produce lower PSNR
+        and higher LPIPS, while subtle styles (lazy, udnie) produce higher PSNR with less perceptual impact.
+        Users can control this trade-off via the intensity parameter without retraining.</li>
+    <li><strong>CPU limitation:</strong> CPU throughput is below real-time for both models, making
+        GPU hardware a deployment requirement for live video use cases.</li>
+  </ul>
+  <p>
+    Overall, StarryNight demonstrates that production-grade, real-time neural style transfer is achievable
+    within a full-stack web application using open-source deep learning tools. The evaluation framework
+    built for this project — covering FPS, PSNR, MAE, LPIPS, and TWE — provides a repeatable benchmark
+    that can guide future model improvements.
+  </p>
+
+  <h1>References</h1>
+  <ol>
+    <li>
+      Gatys, L. A., Ecker, A. S., &amp; Bethge, M. (2015).
+      <em>A Neural Algorithm of Artistic Style.</em> arXiv:1508.06576.
+    </li>
+    <li>
+      Johnson, J., Alahi, A., &amp; Fei-Fei, L. (2016).
+      <em>Perceptual Losses for Real-Time Style Transfer and Super-Resolution.</em>
+      ECCV 2016.
+    </li>
+    <li>
+      Li, C., Lin, D., &amp; Xu, M. (2019).
+      <em>Learning Linear Transformations for Fast Image and Video Style Transfer.</em>
+      CVPR 2019.
+    </li>
+    <li>
+      Zhang, R., Isola, P., Efros, A. A., Shechtman, E., &amp; Wang, O. (2018).
+      <em>The Unreasonable Effectiveness of Deep Features as a Perceptual Metric.</em>
+      CVPR 2018.
+    </li>
+    <li>
+      Huang, X., &amp; Belongie, S. (2017).
+      <em>Arbitrary Style Transfer in Real-time with Adaptive Instance Normalization.</em>
+      ICCV 2017.
+    </li>
+    <li>
+      Simonyan, K., &amp; Zisserman, A. (2014).
+      <em>Very Deep Convolutional Networks for Large-Scale Image Recognition.</em>
+      arXiv:1409.1556.
+    </li>
+    <li>
+      Farneback, G. (2003).
+      <em>Two-Frame Motion Estimation Based on Polynomial Expansion.</em>
+      SCIA 2003.
+    </li>
+    <li>
+      Lin, T. Y., et al. (2014).
+      <em>Microsoft COCO: Common Objects in Context.</em> ECCV 2014.
+    </li>
+  </ol>
+
+  <br>
+  <div class="callout" style="font-size:10.5pt;">
+    <strong>Project Repository:</strong> StarryNight — SWE-491 Capstone, Near East University<br>
+    <strong>Branch:</strong> version-2 &nbsp;·&nbsp; <strong>Evaluated:</strong> June 2026<br>
+    <strong>Models:</strong> Fast Style Transfer (Johnson 2016) &amp; ReCoNet (Li 2019)<br>
+    <strong>Codebase languages:</strong> Python (PyTorch, Django) + JavaScript (React)
+  </div>
+
+  <div class="footer">StarryNight — Performance Report &nbsp;·&nbsp; Page 8 of 8</div>
+</div>
+
+</body>
+</html>

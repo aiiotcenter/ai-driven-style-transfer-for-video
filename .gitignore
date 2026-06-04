@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+.venv*/
+venv/
+env/
+
+# Django/local runtime data
+db.sqlite3
+*/db.sqlite3
+media/
+*/media/
+.cache/
+*/.cache/
+.webcam_jobs/
+*/.webcam_jobs/
+
+# Frontend
+node_modules/
+*/node_modules/
+build/
+*/build/
+npm-debug.log*
+yarn-error.log*
+
+# IDE
+.idea/
+.vscode/
